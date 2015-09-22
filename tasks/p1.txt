@@ -1,0 +1,5 @@
+idle(1000)
+steer(left, 300);
+move(1200)
+idle(3000)
+break(-4000)
