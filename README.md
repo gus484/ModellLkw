@@ -1,5 +1,7 @@
 # ModellLkw
 
+[ModellLkw im GitHub](https://github.com/gus484/ModellLkw)
+
 Benötigt werden folgende Komponenten:
 
 * [RED Brick](http://www.tinkerforge.com/de/doc/Hardware/Bricks/RED_Brick.html)
@@ -8,6 +10,36 @@ Benötigt werden folgende Komponenten:
 * [IO16 Bricklet](http://www.tinkerforge.com/de/doc/Hardware/Bricklets/IO16.html)
 * [Step-Down (Stromversorgung)](http://www.tinkerforge.com/de/doc/Hardware/Power_Supplies/Step_Down.html)
 * WLAN-Stick
+
+##Installation
+Neustes Image auf RED-Brick laden.
+
+Settigs -> File System
+
+Reboot and Expand ausführen
+
+Settings -> Serivces 
+
+* Web Server aktivieren
+* Access Point aktivieren
+
+Settings -> Access Point
+
+* Interface: WLAN0
+* IP: 192.168.42.1
+* Subnet Mask:255.255.255.0
+* SSID: RED Brick
+* WPA-Key: red-brick42
+* Channel: 1
+* Enable DNS/DHCP Haken setzen
+* DHCP Pool Start: 192.168.41.50
+* DHCP Pool End: 192.168.41.254
+* DHCP Subnet Mask: 255.255.255.0
+
+## Projekt anlegen
+
+Language: JavaScript
+ClientSide
 
 ## Verbinden
 
@@ -31,6 +63,14 @@ Der Graph stellt die Querbeschleunigung über die Zeit während einer Kreisfahrt
 Werte für Geschwindigkeit und Richtungseinschlag einstellen. Startknopf drücken. Zum Beenden den Stopknopf am oberen Bildschirmrand drücken.
 
 ##Lichter
+
+Verkabelung (Stand 23.09.2015):
+
+* sw ....... +
+* rot/sw ... Bremslicht
+* rot ...... Rücklicht
+* gelb ..... Blinker
+* grün ..... Rückfahrlicht
 
 Angeschlossen an IO16 wie folgt:
 

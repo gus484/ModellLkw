@@ -56,7 +56,7 @@ var options = {
         var BLINKER_RIGHT_PORT = 'b';
         var BLINKER_LEFT_PINS = 0xC0;
         var BLINKER_LEFT_PORT = 'b';
-        var BLINKER_RATE = 1000;
+        var BLINKER_RATE = 600;
 	
 	// Task Handler Vars
 	var LOOP_RATE_TASK = 100;
@@ -143,7 +143,11 @@ var options = {
 				debug("Found IO16 with UID:" + uid);
 				io16 = new Tinkerforge.BrickletIO16(uid, ipcon); // Create device object
                                 // Alle Pins an Port B auf Ausgang setzen (ausgeschaltet)
-                                io16.setPortConfiguration('b', 255, io16.DIRECTION_OUT, false);
+                                // io16.DIRECTION_OUT
+                                io16.setPortConfiguration('b', 255, 'o', false);
+                                io16.setPort('b', 0);
+
+                                //alert(io16.getPort('b'));
                                 // starte Timer fuer Blinker
                                 setTimeout(blinker, BLINKER_RATE);
 			}
@@ -179,13 +183,11 @@ var options = {
                             var pins = io16.getPort(FRONT_LIGHT_PORT);
                             if (this.checked) {
                                 // turn front light on
-                                alert("on");
                                 pins = pins | FRONT_LIGHT_PINS;
                                 io16.setPort(FRONT_LIGHT_PORT, pins);
                                 
                             } else {
                                 // turn fornt light off
-                                alert("off");
                                 pins = pins | (FRONT_LIGHT_PINS & 0x00);
                                 io16.setPort(FRONT_LIGHT_PORT,pins);
                             }
@@ -214,10 +216,11 @@ var options = {
                                 // turn fornt light off
                                 pins = pins | (BLINKER_LEFT_PINS & 0x00);
                                 io16.setPort(BLINKER_LEFT_PORT,pins);
-                            }                          
+                            }
+                            setTimeout(blinker, BLINKER_RATE);
                         break;
                         case "cb_blinker_right":
-                            var pins = io16.getPort(BLINKER_RIGHT_PORT);
+                            var pins = io16.getPort('BLINKER_RIGHT_PORT');
                             if (this.checked) {
                                 // turn blinker left light on
                                 pins = pins | BLINKER_RIGHT_PINS;
@@ -227,7 +230,8 @@ var options = {
                                 // turn fornt light off
                                 pins = pins | (BLINKER_RIGHT_PINS & 0x00);
                                 io16.setPort(BLINKER_RIGHT_PORT,pins);
-                            }                                    
+                            }
+                            setInterval(blinker, BLINKER_RATE);
                         break;
 			default:
 				alert(this.id);
@@ -320,7 +324,7 @@ var options = {
 			//ToDO
                         task_log = getLogfileName() + "_Task";
                         logging(task_log, "Test", true);
-			startTask($(this).text());
+			startTask(task);
 		});
 		return false;
 	});
@@ -438,6 +442,7 @@ var options = {
 				executeTask();
 				setTimeout(handleTask, LOOP_RATE_TASK);
 			} else {
+                                debug("Task beendet!");
 				task_active = false;
 				task_idx = 0;
 			}			
@@ -497,24 +502,24 @@ var options = {
                                 //alert("LIGHT");
                                 // front light
                                 if (task_arr[task_idx][1] == 'front' && task_arr[task_idx][2] == 'on')
-                                    $('#cb_front_light').prop('checked', true);
+                                    $('#cb_front_light').prop('checked', true).trigger("change");
                                 if (task_arr[task_idx][1] == 'front' && task_arr[task_idx][2] == 'off')
-                                    $('#cb_front_light').prop('checked', false);
+                                    $('#cb_front_light').prop('checked', false).trigger("change");
                                 // back light
                                 if (task_arr[task_idx][1] == 'back' && task_arr[task_idx][2] == 'on')
-                                    $('#cb_back_light').prop('checked', true);
+                                    $('#cb_back_light').prop('checked', true).trigger("change");
                                 if (task_arr[task_idx][1] == 'back' && task_arr[task_idx][2] == 'off')
-                                    $('#cb_back_light').prop('checked', false);
+                                    $('#cb_back_light').prop('checked', false).trigger("change");
                                 // blinker left
                                 if (task_arr[task_idx][1] == 'blinker_left' && task_arr[task_idx][2] == 'on')
-                                    $('#cb_blinker_left').prop('checked', true);
+                                    $('#cb_blinker_left').prop('checked', true).trigger("change");
                                 if (task_arr[task_idx][1] == 'blinker_left' && task_arr[task_idx][2] == 'off')
-                                    $('#cb_blinker_left').prop('checked', false);
+                                    $('#cb_blinker_left').prop('checked', false).trigger("change");
                                 // blinker right
                                 if (task_arr[task_idx][1] == 'blinker_right' && task_arr[task_idx][2] == 'on')
-                                    $('#cb_blinker_right').prop('checked', true);
+                                    $('#cb_blinker_right').prop('checked', true).trigger("change");
                                 if (task_arr[task_idx][1] == 'blinker_right' && task_arr[task_idx][2] == 'off')
-                                    $('#cb_blinker_right').prop('checked', false);
+                                    $('#cb_blinker_right').prop('checked', false).trigger("change");
                                 
                         break;
 		}
@@ -524,20 +529,25 @@ var options = {
 	// -----------------------------------------------------------------
 
 	function blinker() {
+            var act = 0;
             if (io16 == undefined)
                 return;
-            
-            if ($('#cb_blinker_left').checked) {
-                pins = io16.getPort(BLINKER_LEFT_PORT);
-                pins = pins^BLINKER_LEFT_PINS;
-                io16.setPort(BLINKER_LEFT_PORT, pins)
+            if ($('#cb_blinker_left').prop('checked')) {
+                pins = io16.getPort(BLINKER_LEFT_PORT, function (valueMask) {
+                    pins = valueMask^BLINKER_LEFT_PINS;
+                    io16.setPort(BLINKER_LEFT_PORT, pins);
+                });
+                act = act + 1;
             }
-            if ($('#cb_blinker_right').checked) {
-                pins = io16.getPort(BLINKER_RIGHT_PORT);
-                pins = pins^BLINKER_RIGHT_PINS;
-                io16.setPort(BLINKER_RIGHT_PORT, pins)
+            if ($('#cb_blinker_right').prop('checked')) {
+                io16.getPort(BLINKER_RIGHT_PORT, function (valueMask) {
+                    pins = valueMask ^ BLINKER_RIGHT_PINS;
+                    io16.setPort(BLINKER_RIGHT_PORT, pins);
+                });
+                act = act + 1;
             }
-            setTimeout(blinker, BLINKER_RATE);
+            if (act == 0)
+                 clearInterval();
 	}
 
 	// ----------------------------------------------------
