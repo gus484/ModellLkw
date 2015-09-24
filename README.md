@@ -12,18 +12,21 @@ Benötigt werden folgende Komponenten:
 * WLAN-Stick
 
 ##Installation
-Neustes Image auf RED-Brick laden.
+<u>Neustes Image auf RED-Brick laden</u>
 
-Settigs -> File System
+* [RED Brick Image](http://www.tinkerforge.com/de/doc/Downloads.html)
+* [Install-Anleitung](http://www.tinkerforge.com/de/doc/Hardware/Bricks/RED_Brick.html#image-auf-sd-karte-kopieren)
+
+<u>Settigs -> File System</u>
 
 Reboot and Expand ausführen
 
-Settings -> Serivces 
+<u>Settings -> Serivces</u>
 
 * Web Server aktivieren
 * Access Point aktivieren
 
-Settings -> Access Point
+<u>Settings -> Access Point</u>
 
 * Interface: WLAN0
 * IP: 192.168.42.1
@@ -36,20 +39,50 @@ Settings -> Access Point
 * DHCP Pool End: 192.168.41.254
 * DHCP Subnet Mask: 255.255.255.0
 
+Save Schaltfläche anklicken
+
+<u>Settigns -> Brick Daemon</u>
+
+* WebSocket Port: 4280
+
 ## Projekt anlegen
 
-Language: JavaScript
-ClientSide
+Program -> New
+
+<u>Step 1</u>
+
+* Name: ModellLKW
+* Language: JavaScript (Browser/Node.js)
+
+<u>Step 2</u>
+
+* Add Directory
+* Projekt Ordner wählen
+
+<u>Step 3</u>
+
+* JavaScript Flavor: Client-Side (Browser)
+
+Sollte das Logdateien-Verzeichnis bei der Übertragung leer sein, dann wird dieses Verzeichnis nicht angelegt. Es muss nun manuell angelegt werden. In jedem Fall müssen die Rechte des Verzeichnises angepasst werden.
+
+`ssh tf@192.168.42.1` SSH-Verbindung aufbauen und mit Passwort "tf" einloggen
+
+`cd /programs/ModellLkw/bin` ins Projekt-Verzeichnis wechseln
+
+`mkdir logs` Logverzeichnis anlegen
+
+`chmod 777 logs -R` Rechte vergeben
+
 
 ## Verbinden
 
 Mit dem Hotspot des RED-Brick per WLAN verbinden und die URL der Steuerungsoberfläche aufrufen.
 
-`http://192.168.42.1/programs/LKW-Model/bin/`
+* `http://192.168.42.1/programs/LKW-Model/bin/`
 
-SSID:"RED Brick"
+* SSID:"RED Brick" (Standard)
 
-WLAN Passwort: "red-brick42"
+* WLAN Passwort: "red-brick42" (Standard)
 
 ## Logdatein
 

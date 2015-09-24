@@ -19,7 +19,7 @@ $(document).ready(function(){
 	var servo = undefined;
 	var io16 = undefined;
 	var run = false;
-	var HOST = "localhost"; // 192.168.42.1
+	var HOST = "192.168.42.1"; // 192.168.42.1
 	var PORT = 4280;
 	var SERVO_VELOCITY = 0;
 	var SERVO_DIRECTION = 1;
@@ -57,6 +57,7 @@ var options = {
         var BLINKER_LEFT_PINS = 0xC0;
         var BLINKER_LEFT_PORT = 'b';
         var BLINKER_RATE = 600;
+        var clr_blinker_id = 0;
 	
 	// Task Handler Vars
 	var LOOP_RATE_TASK = 100;
@@ -149,7 +150,7 @@ var options = {
 
                                 //alert(io16.getPort('b'));
                                 // starte Timer fuer Blinker
-                                setTimeout(blinker, BLINKER_RATE);
+                                //setTimeout(blinker, BLINKER_RATE);
 			}
 		}
 	);
@@ -180,58 +181,64 @@ var options = {
 
 		switch (this.id) {
 			case "cb_front_light":
-                            var pins = io16.getPort(FRONT_LIGHT_PORT);
-                            if (this.checked) {
-                                // turn front light on
-                                pins = pins | FRONT_LIGHT_PINS;
-                                io16.setPort(FRONT_LIGHT_PORT, pins);
-                                
-                            } else {
-                                // turn fornt light off
-                                pins = pins | (FRONT_LIGHT_PINS & 0x00);
-                                io16.setPort(FRONT_LIGHT_PORT,pins);
-                            }
+                            io16.getPort(FRONT_LIGHT_PORT, function (valueMask) {
+                                if ($('#cb_front_light').prop('checked')) {
+                                    // turn front light on
+                                    pins = valueMask | FRONT_LIGHT_PINS;
+                                    io16.setPort(FRONT_LIGHT_PORT, pins);
+
+                                } else {
+                                    // turn fornt light off
+                                    pins = valueMask & (FRONT_LIGHT_PINS ^ 0xFF);
+                                    io16.setPort(FRONT_LIGHT_PORT,pins);
+                                }                                
+                            });
+
 			break;
                         case "cb_back_light":
-                            var pins = io16.getPort(BACK_LIGHT_PORT);
-                            if (this.checked) {
-                                // turn back light on
-                                pins = pins | BACK_LIGHT_PINS;
-                                io16.setPort(BACK_LIGHT_PORT, pins);
-                                
-                            } else {
-                                // turn back light off
-                                pins = pins | (BACK_LIGHT_PINS & 0x00);
-                                io16.setPort(BACK_LIGHT_PORT,pins);
-                            }                        
+                            io16.getPort(BACK_LIGHT_PORT, function (valueMask) {
+                                if ($('#cb_back_light').prop('checked')) {
+                                    // turn back light on
+                                    pins = valueMask | BACK_LIGHT_PINS;
+                                    io16.setPort(BACK_LIGHT_PORT, pins);
+
+                                } else {
+                                    // turn back light off
+                                    pins = valueMask & (BACK_LIGHT_PINS ^ 0xFF);
+                                    io16.setPort(BACK_LIGHT_PORT,pins);
+                                }                              
+                            });
+                     
                         break;
                         case "cb_blinker_left":
-                            var pins = io16.getPort(BLINKER_LEFT_PORT);
-                            if (this.checked) {
-                                // turn blinker left light on
-                                pins = pins | BLINKER_LEFT_PINS;
-                                io16.setPort(BLINKER_LEFT_PORT, pins);
-                                
-                            } else {
-                                // turn fornt light off
-                                pins = pins | (BLINKER_LEFT_PINS & 0x00);
-                                io16.setPort(BLINKER_LEFT_PORT,pins);
-                            }
-                            setTimeout(blinker, BLINKER_RATE);
+                            io16.getPort(BLINKER_LEFT_PORT, function (valueMask) {
+                                 if ($('#cb_blinker_left').prop('checked')) {
+                                    // turn blinker left light on
+                                    pins = valueMask | BLINKER_LEFT_PINS;
+                                    io16.setPort(BLINKER_LEFT_PORT, pins);
+                                    clr_blinker_id = setInterval(blinker, BLINKER_RATE);                                
+                                } else {
+                                    // turn fornt light off
+                                    pins = valueMask & (BLINKER_LEFT_PINS ^ 0xFF);
+                                    io16.setPort(BLINKER_LEFT_PORT,pins);
+                                    clearInterval(clr_blinker_id);
+                                }
+                            });
                         break;
                         case "cb_blinker_right":
-                            var pins = io16.getPort('BLINKER_RIGHT_PORT');
-                            if (this.checked) {
-                                // turn blinker left light on
-                                pins = pins | BLINKER_RIGHT_PINS;
-                                io16.setPort(BLINKER_RIGHT_PORT, pins);
-                                
-                            } else {
-                                // turn fornt light off
-                                pins = pins | (BLINKER_RIGHT_PINS & 0x00);
-                                io16.setPort(BLINKER_RIGHT_PORT,pins);
-                            }
-                            setInterval(blinker, BLINKER_RATE);
+                            io16.getPort('BLINKER_RIGHT_PORT', function (valueMask) {                                
+                                if ($('#cb_blinker_right').prop('checked')) {
+                                    // turn blinker left light on
+                                    pins = valueMask | BLINKER_RIGHT_PINS;
+                                    io16.setPort(BLINKER_RIGHT_PORT, pins);
+                                    clr_blinker_id = setInterval(blinker, BLINKER_RATE);
+                                } else {
+                                    // turn fornt light off                                 
+                                    pins = valueMask & (BLINKER_RIGHT_PINS ^ 0xFF);
+                                    io16.setPort(BLINKER_RIGHT_PORT,pins);
+                                    clearInterval(clr_blinker_id);
+                                }                        
+                            });                            
                         break;
 			default:
 				alert(this.id);
@@ -546,8 +553,10 @@ var options = {
                 });
                 act = act + 1;
             }
-            if (act == 0)
-                 clearInterval();
+            if (act == 0) {
+                debug("Hier");
+                 clearInterval(clr_blinker_id);
+             }
 	}
 
 	// ----------------------------------------------------
